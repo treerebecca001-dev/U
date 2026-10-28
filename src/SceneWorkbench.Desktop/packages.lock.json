@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net8.0": {
+      "Godot.SourceGenerators": {
+        "type": "Direct",
+        "requested": "[4.7.2, )",
+        "resolved": "4.7.2",
+        "contentHash": "Utbu3S+af5/+SVRUlSZZJb2M52mcL3RbHl5sW6lmvRkG2klS/KFjZ+6ldAmOlp1mTqvxZ+5QsEvl/Dis7a4ZMA=="
+      },
+      "GodotSharp": {
+        "type": "Direct",
+        "requested": "[4.7.2, )",
+        "resolved": "4.7.2",
+        "contentHash": "7lbJgYB1o96H23sX0idzwhnY0DbRx0oJucYKP9xGQv5IcghlXUuxUv/xTMV+I1mW3Wh9uDdtuwtpwNurk2y7Fw=="
+      },
+      "AssetsTools.NET": {
+        "type": "Transitive",
+        "resolved": "3.0.5",
+        "contentHash": "StvUj6ykBOSOdquRmpbjn6mfM7PyOCKdBB/Ed2Jn5aIhbfrl/Oz69tmgJEQCZdix7AZRVZin14/wytP2moJgAQ=="
+      },
+      "YamlDotNet": {
+        "type": "Transitive",
+        "resolved": "18.1.0",
+        "contentHash": "5K+9KFg2TdTl7VXv88Qzi/0lqK6JFoNP3lRuImPYGRV7K/QYklDyTrj4+A+KAki1JsQi6qKY+hDyY7d6WRqjrw=="
+      },
+      "sceneworkbench.core": {
+        "type": "Project"
+      },
+      "sceneworkbench.unity": {
+        "type": "Project",
+        "dependencies": {
+          "AssetsTools.NET": "[3.0.5, )",
+          "SceneWorkbench.Core": "[1.0.0, )",
+          "YamlDotNet": "[18.1.0, )"
+        }
+      }
+    },
+    "net8.0/win-x64": {}
+  }
+}

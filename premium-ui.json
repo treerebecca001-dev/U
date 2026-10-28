@@ -1,0 +1,17 @@
+{
+  "profile": "product-admin",
+  "sourceRoots": ["src/SceneWorkbench.Web/wwwroot"],
+  "locale": "zh-TW",
+  "canonicalMap": "UX-CONTRACT.md",
+  "requiredCapabilities": ["Table Selection", "Select/Listbox", "Form", "Scrollbar", "Toast", "CRUD"],
+  "ownership": {"Select/Listbox": "native"},
+  "requiredCommands": ["syntax", "backend"],
+  "commands": {
+    "syntax": "node scripts/check-web.mjs",
+    "backend": ".\\scripts\\dotnet.ps1 test tests/SceneWorkbench.Tests/SceneWorkbench.Tests.csproj --configuration Release --no-restore --disable-build-servers -m:1 -nr:false -p:UseSharedCompilation=false"
+  },
+  "evidence": {
+    "crudFullFlow": "tests/SceneWorkbench.Tests/WebWorkflowTests.cs",
+    "failurePaths": "tests/SceneWorkbench.Tests/WebWorkflowTests.cs"
+  }
+}

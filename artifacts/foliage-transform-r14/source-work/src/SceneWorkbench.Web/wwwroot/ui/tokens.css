@@ -1,0 +1,13 @@
+/* Generated from EditorTheme.cs by scripts/sync-web-theme.ps1. */
+:root {
+  --color-canvas: #202020;
+  --color-panel: #292929;
+  --color-raised: #353535;
+  --color-border: #181818;
+  --color-text: #e2e2e2;
+  --color-muted: #b4b4b4;
+  --color-selection: #3c6e9e;
+  --color-focus: #83bdf7;
+  --color-warning: #dcc58c;
+  --color-error: #ef9a9a;
+}

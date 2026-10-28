@@ -1,0 +1,20 @@
+{
+  "water": {
+    "guid": "d7b0192b9bf19c949900035fa781fdc4",
+    "sha256": "ca1398d72f423e9a74c2c5e6b548b0ee715071de1f09273a07f7b6ff1c89a24a",
+    "scope": "Fixed native StylizedWater2 shader/library version. Native feature flags; source depth-density, shoreline intersection, waves, normal strength/distance, horizon, sunlight/translucency approximations. Reflections, full URP lighting/shadows and engine fidelity remain unverified.",
+    "dependencies": {
+      "Common.hlsl": "35eefee3db2929c87360df281aa6c0307a7546108c524d5cfcabc951b158c476",
+      "Features.hlsl": "fe23538697cc8625cb4754e304b762c8b856bac44bcf2797bc62e75537d8330e",
+      "ForwardPass.hlsl": "71e25091fdbe07071ae7ff07590bebf25fe21382200208e508415173c38998f4",
+      "Input.hlsl": "acb8cab02b59497155fb11e02be1b0bc3a606cd8b03c6ea77badfa171f070920",
+      "Lighting.hlsl": "65805e6f971b54a49318acde6488583acaf6ac921d7ecb4eb490bb967c1c6e0a",
+      "Vertex.hlsl": "627258deb66231967ff36059e63fc0fc94433291e0f662ac25e735d31013f3fe",
+      "Waves.hlsl": "64bfc1edeeffb994ee2023611e1b56652624b74c4cb24ae3aaca6b1faad840b8",
+      "URP.hlsl": "be71613922fa658001d7570da8759ad5188984f167af0c1e26304839991a4889",
+      "Fog.hlsl": "e4d4470fda2075a1cd5222e7188326089c202dc97bf7cfddef6b8c28e6e15313",
+      "Caustics.hlsl": "e771043c0a4afd25f765d56e6e0752999694c347fe5e87763a1a230e461bc338",
+      "Tesselation.hlsl": "9e064c3a2ba4214ba33e6eeeb8ee838cd14a04e07c7be4379a5e278774499246"
+    }
+  }
+}

@@ -1,0 +1,2 @@
+# Preserve exact source, vendor, and frozen snapshot bytes across checkouts.
+* -text

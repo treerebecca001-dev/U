@@ -1,0 +1,19 @@
+.tools/
+.nuget/
+**/bin/
+**/obj/
+**/.godot/
+Workspace/
+# Keep the current R14 sources; local evidence and build output stay untracked.
+/artifacts/*
+!/artifacts/foliage-transform-r14/
+/artifacts/foliage-transform-r14/*
+!/artifacts/foliage-transform-r14/source-work/
+!/artifacts/foliage-transform-r14/source-snapshot/
+/artifacts/foliage-transform-r14/source-work/artifacts/
+/artifacts/foliage-transform-r14/source-snapshot/artifacts/
+node_modules/
+samples/
+TestResults/
+.vs/
+*.user

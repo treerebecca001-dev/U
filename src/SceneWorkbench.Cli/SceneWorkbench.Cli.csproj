@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <AssemblyName>SceneWorkbench</AssemblyName>
+    <Version>0.1.0</Version>
+    <InformationalVersion>0.1.0-stage0</InformationalVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../SceneWorkbench.Unity/SceneWorkbench.Unity.csproj" />
+  </ItemGroup>
+</Project>

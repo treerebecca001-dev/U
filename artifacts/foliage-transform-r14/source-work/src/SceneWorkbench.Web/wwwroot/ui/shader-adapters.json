@@ -1,0 +1,86 @@
+[
+  {
+    "guid": "fa7fdc0d03c2980439601f300619d964",
+    "name": "ASE_SceneWall",
+    "path": "Assets/02.Arts/Shader/ASE_SceneWall.shader",
+    "sha256": "bdffcb31a4ff1e7862dae9381b3cd114d0b23c1471727478b5fa3d9ac435504d"
+  },
+  {
+    "guid": "a6b7629a1186cd14eaedf5a0c9f887be",
+    "name": "UI_Animation",
+    "path": "Assets/02.Arts/Shader/Role/ASE_Anim_Image.shader",
+    "sha256": "b4905d6619db3e770e10eec9d2a34c62e5114f6b047152fbdcfeb1b076127fae"
+  },
+  {
+    "guid": "da1dc32bc7c4b72468f03da50a26659d",
+    "name": "ASE_LightEffectAfterimage",
+    "path": "Assets/02.Arts/Shader/Role/ASE_LightEffectAfterimage.shader",
+    "sha256": "d0280996f13425000f796b1d6b69e34f29959844da9338062549b99fbb44dd5e"
+  },
+  {
+    "guid": "871d7dc38daf27e4dbe9f0800b1e8195",
+    "name": "ASE_Monster",
+    "path": "Assets/02.Arts/Shader/Role/ASE_Monster.shader",
+    "sha256": "e2d0b3d60f37de1d56a2d51c7e31a94d6acff1cec98d52bc2d302093d4501143"
+  },
+  {
+    "guid": "058bce4fdd0384f4488bfbe237052023",
+    "name": "ASE_MonsterMask",
+    "path": "Assets/02.Arts/Shader/Role/ASE_MonsterMask.shader",
+    "sha256": "f5a90c0d29061c6353b8c93524bade895da98d004102c38b39ec9096314103ac"
+  },
+  {
+    "guid": "f5d35285ae08d4640b9fcf54d9489686",
+    "name": "ASE_Role",
+    "path": "Assets/02.Arts/Shader/Role/ASE_Role.shader",
+    "sha256": "f26f09c5a46af25e8460d5d23194a84e7157f0074a9e126dc5067eeb882d71a9"
+  },
+  {
+    "guid": "b3e679b3b7e887f4ea90de790bac8680",
+    "name": "ASE_RoleMask",
+    "path": "Assets/02.Arts/Shader/Role/ASE_RoleMask.shader",
+    "sha256": "3af5a2b7dffaa68704da199d870745767ea2fbeba02c6c24c451727db0de9110"
+  },
+  {
+    "guid": "270cd16a41471ac428483499a3d239eb",
+    "name": "ASE_Spine2D",
+    "path": "Assets/02.Arts/Shader/Role/ASE_Spine2D.shader",
+    "sha256": "78e01c4a5b0777b29fad404ce323d3776e0798dd59c990976a6e97b3c17be94a"
+  },
+  {
+    "guid": "07801c2355307aa4d84704678611a1dd",
+    "name": "ASE_Weapon",
+    "path": "Assets/02.Arts/Shader/Role/ASE_Weapon.shader",
+    "sha256": "41f35d6dc8f309252906a52c1ba929650b5126372d91021d8d25e519cd79a952"
+  },
+  {
+    "guid": "3f05cf73454d2704b883aebcaa85ce29",
+    "name": "ASE_WeaponMask",
+    "path": "Assets/02.Arts/Shader/Role/ASE_WeaponMask.shader",
+    "sha256": "2d3eccafdc2f2dfe4095b5af6e20acd3f98fc2f3408974cecc63428a77d2332b"
+  },
+  {
+    "guid": "d35f1bd333e8c6546bf994517a955713",
+    "name": "ASE/ScreenText",
+    "path": "Assets/02.Arts/Shader/ScreenText.shader",
+    "sha256": "3d47e1b0c7cd0b0fc19411795c246a67e82d545adc66f5526331469fda26bee1"
+  },
+  {
+    "guid": "7c6e990d05e63ff42936035305f7865e",
+    "name": "ASE/StarWindow",
+    "path": "Assets/02.Arts/Shader/StarWindow.shader",
+    "sha256": "8c483bc508c72f98d2d3123485932561def470f95b65f418c3e58b96b9077699"
+  },
+  {
+    "guid": "737400451233ace4ea144a101bf14baf",
+    "name": "Custom/UIFlowingLight",
+    "path": "Assets/02.Arts/Shader/UI_FlowingLight.shader",
+    "sha256": "3f08d118b62abd804c398a9a1263d11600f62945a046d2254bd2f78ec2d92b78"
+  },
+  {
+    "guid": "686c0174e22b6ea45a5204419b84d6ce",
+    "name": "UI_ProfilePhotoWithMask",
+    "path": "Assets/02.Arts/Shader/UI_ProfilePhotoWithMask.shader",
+    "sha256": "fd45f7f1cf16f0339f6da3d302e8a9de95b5373e8a169aec96f074720dab3d26"
+  }
+]

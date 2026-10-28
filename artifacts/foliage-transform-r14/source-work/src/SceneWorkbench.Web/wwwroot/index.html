@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="workbench-token" content="__WORKBENCH_TOKEN__">
+  <title>SceneWorkbench · 本機場景編輯器</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/ui/tokens.css">
+  <link rel="stylesheet" href="/ui/editor.css">
+  <script type="module" src="/ui/app.js"></script>
+</head>
+<body>
+  <div class="editor-shell">
+    <header class="app-header"><div class="brand"><span class="brand-mark" aria-hidden="true">◈</span><strong>SceneWorkbench</strong><span class="badge">本機開發版</span></div><span id="project-label">尚未開啟專案</span><span class="local-label">本機檔案 · 無需 Unity</span></header>
+    <nav class="toolbar" aria-label="編輯器工具列">
+      <button id="open-project" disabled data-init-disabled>開啟專案…</button><button id="create-copy" disabled>建立工作複本…</button>
+      <span class="tool-separator" aria-hidden="true"></span>
+      <button id="save" class="primary" title="儲存 Ctrl+S" disabled>儲存 <kbd>Ctrl S</kbd></button>
+      <button id="undo" title="復原一項屬性 Ctrl+Z" disabled>↶ 復原</button><button id="redo" title="重做一項屬性 Ctrl+Y" disabled>↷ 重做</button>
+      <button id="reload" disabled>重新載入</button><button id="sync" disabled data-init-disabled>同步分頁</button>
+      <span id="dirty-label" class="save-state">尚無場景</span>
+    </nav>
+    <div class="compatibility" id="compatibility">選擇本機 Unity 專案，或開啟示範場景開始編輯。</div>
+    <main class="workspace" aria-label="場景工作檯">
+      <section class="panel hierarchy-panel" aria-labelledby="hierarchy-heading">
+        <div class="panel-heading"><h1 id="hierarchy-heading">Hierarchy</h1><span id="hierarchy-count" class="count">0</span></div>
+        <div class="search-control"><label class="sr-only" for="hierarchy-search">搜尋 Hierarchy</label><input id="hierarchy-search" type="search" placeholder="搜尋場景物件" autocomplete="off"><button class="clear-search" data-clear="hierarchy-search" aria-label="清除物件搜尋" hidden disabled data-init-disabled>×</button></div>
+        <div id="hierarchy" class="panel-scroll tree-list" aria-label="場景物件"></div>
+        <button id="more-objects" class="load-more" hidden disabled data-init-disabled>載入更多物件</button>
+      </section>
+      <section class="panel scene-panel" aria-labelledby="scene-heading">
+        <div class="panel-heading scene-toolbar"><h2 id="scene-heading">Scene</h2><label class="sr-only" for="scene-select">開啟場景</label><select id="scene-select" aria-describedby="scene-load-status" disabled><option value="">選擇 .unity 場景</option></select><button id="load-scene" type="button" disabled>載入 Scene</button><span class="badge" id="scene-mode">結構預覽</span></div>
+        <div id="scene-load-status" class="scene-load-state" role="status" aria-live="polite">選擇 Scene 後會自動載入，也可按「載入 Scene」重新讀取。</div>
+        <div class="viewport-tools">
+          <div class="transform-buttons" role="group" aria-label="場景工具"><button id="view-tool" aria-pressed="false" title="檢視工具 Q" disabled data-init-disabled>檢視 <kbd>Q</kbd></button><button id="translate" aria-pressed="true" title="移動工具 W" disabled data-init-disabled>移動 <kbd>W</kbd></button><button id="rotate" aria-pressed="false" title="旋轉工具 E" disabled data-init-disabled>旋轉 <kbd>E</kbd></button><button id="scale" aria-pressed="false" title="縮放工具 R" disabled data-init-disabled>縮放 <kbd>R</kbd></button></div>
+          <label for="transform-space">座標</label><select id="transform-space" aria-describedby="transform-status"><option value="world">世界</option><option value="local">區域</option></select>
+          <label><input type="checkbox" id="snap-toggle">吸附</label><label class="sr-only" for="snap-step">吸附間距</label><select id="snap-step" aria-describedby="transform-status"><option value="1">1 單位</option></select>
+          <button id="focus-object" title="聚焦選取物件 F" disabled data-init-disabled>聚焦 <kbd>F</kbd></button><button id="frame-scene" disabled data-init-disabled>查看全景</button><label><input type="checkbox" id="grid-toggle" checked>網格</label><label title="顯示 Client231229 原有碰撞輔助材質，不改動原始啟用設定"><input type="checkbox" id="helpers-toggle">碰撞輔助</label><span id="renderer-state">準備預覽…</span>
+        </div>
+        <p id="transform-status" class="transform-status" role="status">選取物件後可操作；W 移動 · E 旋轉 · R 縮放 · Q 檢視。</p>
+        <div id="viewport" tabindex="0" aria-label="3D 場景，W 移動、E 旋轉、R 縮放、Q 檢視，F 聚焦選取物件，Esc 取消拖曳">
+          <section id="scene-loading" class="scene-loading" aria-labelledby="scene-loading-heading" hidden><h3 id="scene-loading-heading">正在載入 Scene</h3><progress id="scene-load-progress" max="100" aria-label="目前階段的讀取進度" aria-describedby="scene-load-status scene-load-count"></progress><p id="scene-load-count">正在讀取，請稍候…</p></section>
+          <div id="welcome" class="welcome"><span class="welcome-symbol" aria-hidden="true">◈</span><h2>開啟你的場景</h2><p>直接讀取 Unity 專案結構，<br>在工作複本裡編輯與保存。</p><button id="open-demo" class="primary" disabled data-init-disabled>開啟示範場景</button><button id="open-sample" disabled data-init-disabled>開啟 Client231229 工作複本</button><p class="muted small">原始範本保持唯讀。所有資料留在本機。</p></div>
+          <div class="axis-key" aria-hidden="true"><span class="axis-x">X</span><span class="axis-y">Y</span><span class="axis-z">Z</span></div>
+          <span id="view-caption" class="view-caption">拖曳旋轉 · 右鍵平移 · 滾輪縮放</span>
+        </div>
+        <div class="preview-note">來源 FBX／Mesh／Prefab 與固定 ASE／URP 表面預覽。Shader 特殊效果、光照與後製差異請查看 Inspector／Console。</div>
+      </section>
+      <aside class="panel inspector-panel" aria-labelledby="inspector-heading">
+        <div class="panel-heading"><h2 id="inspector-heading">Inspector</h2><span id="selection-kind" class="badge">未選取</span></div>
+        <div id="inspector" class="panel-scroll"><div class="empty-state">選取場景物件以編輯屬性。<br><span class="muted">或選取 Project 資源查看內容。</span></div></div>
+      </aside>
+      <section class="panel project-panel" aria-labelledby="project-heading">
+        <div class="panel-heading"><div class="tab-buttons" role="tablist" aria-label="資源與訊息"><button id="project-heading" role="tab" aria-selected="true" aria-controls="project-content" disabled data-init-disabled>Project</button><button id="console-tab" role="tab" aria-selected="false" aria-controls="console-content" tabindex="-1" disabled data-init-disabled>Console <span id="diagnostic-count">0</span></button></div><span id="asset-count" class="count">本機資源</span></div>
+        <div id="project-content" role="tabpanel" aria-labelledby="project-heading">
+          <div class="project-tools"><button id="asset-up" title="上一層資料夾" disabled>↑ 上一層</button><span id="asset-directory" class="path-label">Assets / Packages</span><div class="search-control"><label class="sr-only" for="asset-search">搜尋 Project 資源</label><input id="asset-search" type="search" placeholder="搜尋資源名稱或路徑" autocomplete="off"><button class="clear-search" data-clear="asset-search" aria-label="清除資源搜尋" hidden disabled data-init-disabled>×</button></div></div>
+          <div id="assets" class="panel-scroll asset-list" aria-label="專案資源"><div class="empty-state">開啟專案後，這裡會顯示 Assets 與 Packages。</div></div>
+          <button id="more-assets" class="load-more" hidden disabled data-init-disabled>載入更多資源</button>
+        </div>
+        <div id="console-content" role="tabpanel" aria-labelledby="console-tab" class="panel-scroll" hidden><button id="recover" disabled>復原中斷存檔</button><div id="console"></div></div>
+      </section>
+    </main>
+    <div class="feedback-line"><span id="progress" role="status" aria-live="polite">就緒</span><button id="cancel-operation" hidden disabled data-init-disabled>取消作業</button></div>
+    <div id="operation-error" class="operation-error" role="alert" aria-live="assertive"></div>
+    <footer><span id="scene-path">本機開發服務</span><span id="selection-id">未選取物件</span></footer>
+  </div>
+  <dialog id="project-dialog" aria-labelledby="project-dialog-title"><form id="project-form" novalidate><h2 id="project-dialog-title">開啟 Unity 專案</h2><p>選擇含有 Assets、Packages、ProjectSettings 的本機資料夾。</p><label for="project-path">專案資料夾完整路徑</label><input id="project-path" autocomplete="off" spellcheck="false" required aria-describedby="project-path-error"><p id="project-path-error" class="field-error"></p><label class="project-mode-choice" for="project-use-copy"><input id="project-use-copy" type="checkbox" checked aria-describedby="project-mode-help">使用專案副本</label><p id="project-mode-help" aria-live="polite">建立完整副本，變更儲存在副本。</p><div id="project-copy-options"><label for="project-copy-path">新副本資料夾完整路徑</label><input id="project-copy-path" autocomplete="off" spellcheck="false" aria-describedby="project-copy-path-error"><p id="project-copy-path-error" class="field-error"></p></div><div class="dialog-actions"><button type="button" data-close="project-dialog" disabled data-init-disabled>取消</button><button class="primary" type="submit" disabled data-init-disabled>開啟專案</button></div></form></dialog>
+  <dialog id="copy-dialog" aria-labelledby="copy-dialog-title"><form id="copy-form" novalidate><h2 id="copy-dialog-title">建立工作複本</h2><p>完整複製 Unity 來源資源與套件快取，保留原始專案。目的地必須是此工作區內尚未存在的資料夾。</p><label for="copy-path">新工作複本完整路徑</label><input id="copy-path" autocomplete="off" spellcheck="false" required aria-describedby="copy-path-error"><p id="copy-path-error" class="field-error"></p><div class="dialog-actions"><button type="button" data-close="copy-dialog" disabled data-init-disabled>取消</button><button class="primary" type="submit" disabled data-init-disabled>建立工作複本</button></div></form></dialog>
+  <dialog id="unsaved-dialog" aria-labelledby="unsaved-title"><h2 id="unsaved-title">保留目前的場景變更？</h2><p>繼續前，可以先儲存或捨棄目前的變更。</p><div class="dialog-actions"><button id="unsaved-cancel" autofocus disabled data-init-disabled>取消</button><button id="unsaved-discard" disabled data-init-disabled>捨棄變更</button><button id="unsaved-save" class="primary" disabled data-init-disabled>儲存後繼續</button></div></dialog>
+</body>
+</html>

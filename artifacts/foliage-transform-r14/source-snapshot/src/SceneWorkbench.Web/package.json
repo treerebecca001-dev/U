@@ -1,0 +1,1 @@
+{"name":"scene-workbench-local-web","private":true,"type":"module","scripts":{"check":"node ../../scripts/check-web.mjs"}}

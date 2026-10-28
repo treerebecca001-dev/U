@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SceneWorkbench.Core/SceneWorkbench.Core.csproj" />
+    <Project Path="src/SceneWorkbench.Unity/SceneWorkbench.Unity.csproj" />
+    <Project Path="src/SceneWorkbench.Cli/SceneWorkbench.Cli.csproj" />
+    <Project Path="src/SceneWorkbench.Desktop/SceneWorkbench.Desktop.csproj" />
+    <Project Path="src/SceneWorkbench.Web/SceneWorkbench.Web.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SceneWorkbench.Tests/SceneWorkbench.Tests.csproj" />
+  </Folder>
+</Solution>

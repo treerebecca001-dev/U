@@ -1,0 +1,90 @@
+const {chromium}=require('C:/Users/tree/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const fs=require('node:fs/promises'),path=require('node:path'),crypto=require('node:crypto'),assert=require('node:assert/strict');
+const root=path.resolve(__dirname,'..'),url=process.env.WORKBENCH_QA_URL??'http://127.0.0.1:5288';
+const fixture=path.join(root,'artifacts/version-r8/access-fixture-source');
+const source=path.join(root,'Workspace/QA','SceneLoad-'+Date.now());
+const emptyProject=source+'-empty';
+const out=path.join(root,'artifacts/version-r8',process.argv[2]??'scene-load-browser');
+const sha=b=>crypto.createHash('sha256').update(b).digest('hex');
+(async()=>{
+  await fs.mkdir(out,{recursive:true});assert.equal(await fs.stat(path.join(out,'result.json')).then(()=>true,()=>false),false);
+  assert.equal(await fs.stat(source).then(()=>true,()=>false),false);await fs.mkdir(source);
+  for(const folder of ['Assets','Packages','ProjectSettings'])await fs.cp(path.join(fixture,folder),path.join(source,folder),{recursive:true,errorOnExist:true,force:false});
+  await fs.copyFile(path.join(source,'Assets/QA.unity'),path.join(source,'Assets/QA-second.unity'));
+  await fs.writeFile(path.join(source,'Assets/QA-second.unity.meta'),'fileFormatVersion: 2\nguid: '+crypto.randomBytes(16).toString('hex')+'\n');
+  await fs.mkdir(path.join(emptyProject,'Assets'),{recursive:true});
+  for(const folder of ['Packages','ProjectSettings'])await fs.cp(path.join(source,folder),path.join(emptyProject,folder),{recursive:true,errorOnExist:true,force:false});
+  const report={time:new Date().toISOString(),url,source,steps:[],pageErrors:[],console:[],failedRequests:[]};
+  const step=(name,data={})=>{report.steps.push({name,status:'PASS',...data});console.log(JSON.stringify(report.steps.at(-1)));};
+  let browser;
+  try{
+    browser=await chromium.launch({channel:'chrome',headless:true,chromiumSandbox:true});report.browserVersion=browser.version();
+    const page=await browser.newPage({viewport:{width:1440,height:1000},locale:'zh-TW'});page.setDefaultTimeout(180000);
+    page.on('pageerror',e=>report.pageErrors.push(e.stack));page.on('console',m=>report.console.push({type:m.type(),text:m.text()}));page.on('requestfailed',r=>report.failedRequests.push({url:r.url(),error:r.failure()?.errorText}));
+    const idle=()=>page.waitForFunction(()=>!document.querySelector('#progress').classList.contains('busy'));
+    await page.goto(url+'/?source=scene-load-r8-fix1',{waitUntil:'networkidle'});await idle();
+    const token=await page.locator('meta[name=workbench-token]').getAttribute('content');
+    let previewDelay=0, previewFailure=null;
+    await page.route('**/api/preview?**',async route=>{
+      if(previewFailure){const error=previewFailure;previewFailure=null;await route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error})});return;}
+      const delay=previewDelay;previewDelay=0;
+      if(delay){const response=await route.fetch();await new Promise(resolve=>setTimeout(resolve,delay));await route.fulfill({response});}
+      else await route.continue();
+    });
+    const get=async endpoint=>{const r=await page.request.get(url+endpoint,{headers:{'X-Workbench-Token':token}});assert.equal(r.status(),200);return r.json();};
+    report.served=[];
+    for(const file of ['ui/app.js','ui/editor.css']){const r=await page.request.get(url+'/'+file),digest=sha(await r.body());assert.equal(digest,sha(await fs.readFile(path.join(root,'src/SceneWorkbench.Web/wwwroot',file))));report.served.push({file,sha256:digest});}
+    await page.locator('#open-project').click();await page.locator('#project-path').fill(source);await page.locator('#project-use-copy').uncheck();await page.locator('#project-form button[type=submit]').click();await page.locator('#project-dialog').waitFor({state:'hidden'});await idle();
+    let state=await get('/api/state');const scene=state.scenePaths.find(p=>p==='Assets/QA.unity')??state.scenePaths[0];assert.ok(scene);
+    const original=await fs.readFile(path.join(source,scene));report.nativeBefore=sha(original);
+    assert.equal(state.scenePath,null,'Two-scene project must begin before its first scene load');
+    await page.route('**/api/scene/open',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:'驗收：首次場景載入失敗'})}),{times:1});
+    await page.locator('#scene-select').selectOption(scene);await idle();assert.equal(await page.locator('#scene-load-status').getAttribute('data-state'),'error');assert.match(await page.locator('#scene-load-status').innerText(),/首次場景載入失敗/);assert.equal(await page.locator('#scene-select').inputValue(),scene);
+    await page.locator('#load-scene').click();await idle();assert.equal(await page.locator('#scene-load-status').getAttribute('data-state'),'ready');
+    step('First-ever scene load failure retains its scene error and selected path, then retries successfully');
+    await page.locator('#scene-select').selectOption('');await idle();assert.equal(await page.locator('#load-scene').isDisabled(),true);
+    await page.locator('#scene-select').selectOption(scene);await idle();state=await get('/api/state');assert.equal(state.scenePath,scene);assert.equal(await page.locator('#scene-load-status').getAttribute('data-state'),'ready');assert.ok(state.items.length);
+    step('Selecting Scene loads native objects and real preview automatically; empty selection disables Load Scene');
+    const revision=state.revision;let count=0;page.on('request',r=>{if(new URL(r.url()).pathname==='/api/scene/open')count++;});
+    previewDelay=4500;
+    await page.locator('#load-scene').click();await page.waitForFunction(()=>document.querySelector('#scene-load-status').dataset.state==='loading');
+    assert.equal(await page.locator('#load-scene').isDisabled(),true);assert.equal(await page.locator('#scene-select').isDisabled(),true);assert.equal(await page.locator('#viewport').getAttribute('aria-busy'),'true');
+    assert.equal(await page.locator('#scene-loading').isVisible(),true);assert.equal(await page.locator('#scene-load-progress').getAttribute('value'),null);
+    await page.locator('.scene-panel').screenshot({path:path.join(out,'loading.png')});
+    await page.route('**/api/activity',route=>route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({busy:true,message:'GUID 索引：1,000/2,000'})}),{times:1});
+    await page.waitForFunction(()=>document.querySelector('#scene-load-progress').getAttribute('value')==='1000');
+    assert.equal(await page.locator('#scene-load-progress').getAttribute('max'),'2000');assert.match(await page.locator('#scene-load-count').innerText(),/50%/);
+    await page.locator('#scene-loading').screenshot({path:path.join(out,'progress-counts.png')});
+    await idle();state=await get('/api/state');assert.equal(state.revision,revision+1);assert.equal(count,1);assert.equal(await page.locator('#viewport').getAttribute('aria-busy'),'false');assert.equal(await page.locator('#scene-loading').isHidden(),true);
+    step('Explicit button reloads the already selected Scene once, with visible stages and duplicate controls disabled');
+    previewFailure='驗收：預覽資源暫時無法讀取';
+    await page.locator('#load-scene').click();await idle();assert.equal(await page.locator('#scene-load-status').getAttribute('data-state'),'partial');assert.match(await page.locator('#operation-error').innerText(),/預覽資源暫時無法讀取/);assert.doesNotMatch(await page.locator('#progress').innerText(),/已讀取場景、模型與材質/);
+    await page.locator('.scene-panel').screenshot({path:path.join(out,'preview-failed.png')});await page.locator('#load-scene').click();await idle();assert.equal(await page.locator('#scene-load-status').getAttribute('data-state'),'ready');assert.equal(await page.locator('#operation-error').innerText(),'');
+    step('A preview failure preserves native structure, reports partial load and retries successfully without false success');
+    await page.route('**/api/scene/open',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:'驗收：場景暫時無法讀取'})}),{times:1});
+    await page.locator('#load-scene').click();await idle();assert.equal(await page.locator('#scene-load-status').getAttribute('data-state'),'error');assert.match(await page.locator('#scene-load-status').innerText(),/場景暫時無法讀取/);assert.equal(await page.locator('#scene-select').inputValue(),scene);
+    await page.locator('#load-scene').focus();await page.keyboard.press('Enter');await idle();assert.equal(await page.locator('#scene-load-status').getAttribute('data-state'),'ready');
+    step('A native scene failure retains the selected path and supports keyboard retry');
+    state=await get('/api/state');const item=state.items.find(i=>i.editable&&i.editableFields.includes('name'));assert.ok(item);
+    await page.locator('#hierarchy button[data-file-id="'+item.id+'"]').click();await idle();await page.locator('#object-name').fill('載入確認暫存');await page.locator('#apply-inspector').click();await idle();
+    const opensBeforeCancel=count;await page.locator('#load-scene').click();await page.locator('#unsaved-dialog').waitFor({state:'visible'});await page.locator('#unsaved-cancel').click();await idle();assert.equal((await get('/api/state')).dirty,true);assert.equal(count,opensBeforeCancel);assert.equal(await page.locator('#object-name').inputValue(),'載入確認暫存');
+    await page.locator('#load-scene').click();await page.locator('#unsaved-dialog').waitFor({state:'visible'});await page.locator('#unsaved-discard').click();await idle();assert.equal((await get('/api/state')).dirty,false);assert.equal(sha(await fs.readFile(path.join(source,scene))),report.nativeBefore);
+    step('Load Scene shares unsaved Save/Discard/Cancel protection; cancel preserves edits and discard changes no native bytes');
+    await page.route('**/api/scene/open',route=>route.continue({headers:{...route.request().headers(),'X-Workbench-Token':'expired-development-session'}}),{times:1});
+    await page.locator('#load-scene').click();await idle();assert.match(await page.locator('#scene-load-status').innerText(),/重新整理頁面/);assert.equal(await page.locator('#load-scene').isEnabled(),true);
+    await page.locator('#load-scene').click();await idle();assert.equal(await page.locator('#scene-load-status').getAttribute('data-state'),'ready');
+    step('A real rejected expired launch token produces a visible reload hint and exits the loading state');
+    await page.setViewportSize({width:390,height:844});await page.locator('#load-scene').scrollIntoViewIfNeeded();await page.locator('#load-scene').click();await idle();assert.equal(await page.locator('#scene-load-status').getAttribute('data-state'),'ready');assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+    const box=await page.locator('#load-scene').boundingBox();assert.ok(box.height>=24&&box.x>=0&&box.x+box.width<=390);await page.locator('.scene-panel').screenshot({path:path.join(out,'narrow.png')});
+    step('390px layout keeps the Load Scene button, selected path and status visible and operable');
+    await page.route('**/api/scene/open',route=>route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({error:'驗收：切換專案前的載入錯誤'})}),{times:1});
+    await page.locator('#load-scene').click();await idle();assert.equal(await page.locator('#scene-load-status').getAttribute('data-state'),'error');assert.equal(await page.locator('#scene-loading').isHidden(),true);
+    await page.locator('#open-project').click();await page.locator('#project-path').fill(emptyProject);await page.locator('#project-use-copy').uncheck();await page.locator('#project-form button[type=submit]').click();await page.locator('#project-dialog').waitFor({state:'hidden'});await idle();
+    assert.equal(await page.locator('#scene-load-status').getAttribute('data-state'),'idle');assert.doesNotMatch(await page.locator('#scene-load-status').innerText(),/載入錯誤/);assert.equal(await page.locator('#scene-select').inputValue(),'');assert.equal(await page.locator('#load-scene').isDisabled(),true);assert.equal(await page.locator('#scene-loading').isHidden(),true);
+    step('Switching project clears an old scene failure and progress overlay without carrying its selection');
+    report.nativeAfter=sha(await fs.readFile(path.join(source,scene)));assert.equal(report.nativeAfter,report.nativeBefore);assert.deepEqual(report.pageErrors,[]);
+    const errors=report.console.filter(m=>m.type==='error');assert.equal(errors.filter(m=>m.text.includes('503')).length,4);assert.equal(errors.filter(m=>m.text.includes('403')).length,1);assert.equal(errors.length,5);assert.ok(report.failedRequests.every(r=>r.error==='net::ERR_ABORTED'));
+    report.expectedConsole='Four intentional HTTP503 responses and one real HTTP403 token rejection; no other browser errors. The determinate bar uses controlled known stage counts, not a measured overall load percentage.';report.status='PASS';
+  }catch(e){report.status='FAILED';report.error=e.stack;process.exitCode=1;}
+  finally{await fs.writeFile(path.join(out,'result.json'),JSON.stringify(report,null,2));if(browser)await browser.close();console.log(JSON.stringify({status:report.status,error:report.error,steps:report.steps.length}));}
+})();
